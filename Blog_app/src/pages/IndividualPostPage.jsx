@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 function IndividualPostPage() {
   const { postId } = useParams();
@@ -7,18 +8,16 @@ function IndividualPostPage() {
   const [post, setPost] = useState(null);
   const [user, setUser] = useState(null);
   const [comments, setComments] = useState([]);
-
-  const [name, setName] = useState("");
   const [commentText, setCommentText] = useState("");
 
-  // fetch post
+  const { user: loggedInUser } = useContext(AuthContext);
+
+  
   useEffect(() => {
     fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
       .then((res) => res.json())
       .then((data) => {
         setPost(data);
-
-        // fetch user
         return fetch(
           `https://jsonplaceholder.typicode.com/users/${data.userId}`
         );
@@ -28,7 +27,7 @@ function IndividualPostPage() {
       .catch((err) => console.error(err));
   }, [postId]);
 
-  // fetch comments
+  
   useEffect(() => {
     fetch(
       `https://jsonplaceholder.typicode.com/posts/${postId}/comments`
@@ -38,17 +37,17 @@ function IndividualPostPage() {
       .catch((err) => console.error(err));
   }, [postId]);
 
-  // handle submit
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!name || !commentText) {
-      alert("Please fill out all fields");
+    if (!commentText) {
+      alert("Please write a comment");
       return;
     }
 
     const newComment = {
-      name,
+      name: loggedInUser.username,
       body: commentText,
     };
 
@@ -65,7 +64,6 @@ function IndividualPostPage() {
       .then((res) => res.json())
       .then((data) => {
         setComments([data, ...comments]);
-        setName("");
         setCommentText("");
       });
   };
@@ -86,25 +84,33 @@ function IndividualPostPage() {
 
       <h2>Comments</h2>
 
-      {/* FORM */}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      
+      {!loggedInUser ? (
+        <p style={{ color: "white" }}>
+          Please log in to leave a comment.
+        </p>
+      ) : (
+        <>
+          <form onSubmit={handleSubmit}>
+           
+            <input
+              type="text"
+              value={loggedInUser.username}
+              readOnly
+            />
 
-        <textarea
-          placeholder="Your comment"
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-        />
+            <textarea
+              placeholder="Your comment"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+            />
 
-        <button type="submit">Submit</button>
-      </form>
+            <button type="submit">Submit</button>
+          </form>
+        </>
+      )}
 
-      {/* COMMENTS */}
+      
       {comments.length === 0 ? (
         <p>No comments yet. Be the first to comment!</p>
       ) : (

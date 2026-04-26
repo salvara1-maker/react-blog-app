@@ -1,26 +1,44 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import BlogPostsPage from "./pages/BlogPostsPage";
 import IndividualPostPage from "./pages/IndividualPostPage";
 import ContactPage from "./pages/ContactPage";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage"; 
+import ProtectedRoute from "./components/ProtectedRoute"; 
 import Navbar from "./components/Navbar";
 import "./App.css";
 
 function App() {
   return (
-    <div>
-      <Navbar />
+    <BrowserRouter>
+      <div>
+        <Navbar />
 
-      <Routes>
-        {/* Home - list of posts */}
-        <Route path="/" element={<BlogPostsPage />} />
+        <Routes>
+          
+          <Route path="/" element={<HomePage />} />
 
-        {/* Individual post */}
-        <Route path="/post/:postId" element={<IndividualPostPage />} />
+          
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Contact page */}
-        <Route path="/contact" element={<ContactPage />} />
-      </Routes>
-    </div>
+          
+          <Route
+            path="/blog"
+            element={
+              <ProtectedRoute>
+                <BlogPostsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          
+          <Route path="/post/:postId" element={<IndividualPostPage />} />
+
+          
+          <Route path="/contact" element={<ContactPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 function CommentSection() {
   const [comments, setComments] = useState([]);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
+
+  const { user } = useContext(AuthContext); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,9 +18,19 @@ function CommentSection() {
     setText("");
   };
 
+  
+  if (!user) {
+    return (
+      <p style={{ color: "white" }}>
+        Please log in to leave a comment.
+      </p>
+    );
+  }
+
+  
   return (
     <div>
-      <h3>Comments</h3>
+      <h3 style={{ color: "white" }}>Comments</h3>
 
       <form onSubmit={handleSubmit}>
         <input
